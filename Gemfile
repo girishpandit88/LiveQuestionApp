@@ -30,4 +30,9 @@ gem 'jquery-rails'
 group :test do
   # Pretty printed test output
   gem 'turn', :require => false
+  gem 'webrat'
+  gem 'memory_test_fix'
+  gem 'capybara'
+  gem 'test-unit'
+  gem 'launchy'
 end

@@ -10,7 +10,8 @@
       </ul>
     </div>
   <% end %>
-
+  <%= hidden_field 'comment' ,'comment_id',
+                     {'value' => @comment_id} %>
   <div class="actions">
     <%= f.submit %>
   </div>

@@ -7,3 +7,12 @@
 //= require jquery
 //= require jquery_ujs
 //= require_tree .
+
+$(document).ready(function(){
+
+				// Accordion
+				$("#Stats").accordion({ speed: "5", autoHeight: false, collapsible: true});
+				//$("#accordion3").accordion({ speed: "5", fillSpace: false, autoHeight: false, header:"h5", collapsible: true});
+				// Tabs
+				$("#tabs").tabs({event:"mouseover"});
+			});

@@ -19,9 +19,14 @@ a {
   color: #000;
   &:visited {
     color: #666; }
+  &:active{
+   text-decoration: underline;
+  }
   &:hover {
     color: #fff;
-    background-color: #000; } }
+    text-decoration: underline;
+    background-color: transparent;
+    } }
 
 div {
   &.field, &.actions {
@@ -29,6 +34,8 @@ div {
 
 #notice {
   color: green; }
+#alert {
+  color: red; }
 
 .field_with_errors {
   padding: 2px;

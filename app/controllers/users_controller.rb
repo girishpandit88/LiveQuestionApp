@@ -3,30 +3,12 @@ class UsersController < ApplicationController
   # GET /users.json
   def index
     @users = User.all
-
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @users }
     end
   end
 
-  def login
-    respond_to do  |format|
-      format.html #login.html.erb
-    end
-  end
-  # GET /users/login
-  # GET /users/login.json
-  def signIn
-    @user = User.find_by_uname(params[:uname])
-    if @user == nil || !@user.authenticate(params[:uname], params[:password])
-      redirect_to :action => "login", :notice => "Unable to log in to the system. Please check your credentials"
-    elsif @user.authenticate(params[:uname], params[:password])
-      session[:current_user_id] = @user.id
-      redirect_to @user
-    end
-
-  end
   # GET /users/1
   # GET /users/1.json
   def show
@@ -61,6 +43,11 @@ class UsersController < ApplicationController
 
     respond_to do |format|
       if @user.save
+        if session[:current_user_id].nil?
+          session[:current_user_id] = @user.id
+          #flash[:alert] = "You have successfully logged in"
+          #redirect_to :controller => "posts", :action => "index"
+        end
         format.html { redirect_to @user, notice: 'User was successfully created.' }
         format.json { render json: @user, status: :created, location: @user }
       else
@@ -88,15 +75,24 @@ class UsersController < ApplicationController
 
 
   def search
-      @users = User.find_all_by_name(params[:inp])
-      if @users != nil
-        respond_to do |format|
-          format.html #search.html.erb
-          format.json { render json: @users }
+     @user = User.find_by_uname(params[:inp])
+
+      if @user != nil
+        @posts = Post.find_all_by_user_id(@user.id)
+        if @posts.length != 0
+          respond_to do |format|
+            format.html #search.html.erb
+            format.json { render json: @posts }
+          end
+        else
+          flash[:alert] = "No posts found for user name input: #{params[:inp]} ! Please try again."
+          redirect_to :controller => "posts", :action => "index"
         end
+      else
+          flash[:alert] = "No user found for search input: #{params[:inp]}"
+          redirect_to :controller => "posts", :action => "index"
       end
-    #elsif (params[:search]== 'post')
-          #redirect_to :controller => "posts", :action => "search"
+
   end
 
 
@@ -104,6 +100,25 @@ class UsersController < ApplicationController
   # DELETE /users/1.json
   def destroy
     @user = User.find(params[:id])
+
+    post = Post.find(:all, :conditions => ["user_id = ?", @user.id])
+    for n in 0 ... post.size do
+      Post.destroyCascade(post[n])
+    end
+
+    vote = Vote.find(:all, :conditions => ["user_id = ?", @user.id])
+    for n in 0 ... vote.size do
+      Vote.destroyCascade(vote[n])
+    end
+    comment = Comment.find(:all, :conditions => ["user_id = ?", @user.id])
+    for n in 0 ... comment.size do
+      Comment.destroyCascade(comment[n])
+    end
+    commentvote = CommentVote.find(:all, :conditions => ["user_id = ?", @user.id])
+    for n in 0 ... commentvote.size do
+      CommentVote.destroyCascade(commentvote[n])
+    end
+
     @user.destroy
 
     respond_to do |format|

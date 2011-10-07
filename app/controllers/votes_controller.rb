@@ -1,83 +1,34 @@
 class VotesController < ApplicationController
-  # GET /votes
-  # GET /votes.json
-  def index
-    @votes = Vote.all
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @votes }
-    end
-  end
-
-  # GET /votes/1
-  # GET /votes/1.json
-  def show
-    @vote = Vote.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @vote }
-    end
-  end
-
   # GET /votes/new
   # GET /votes/new.json
   def new
-    @vote = Vote.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @vote }
-    end
-  end
-
-  # GET /votes/1/edit
-  def edit
-    @vote = Vote.find(params[:id])
-  end
-
-  # POST /votes
-  # POST /votes.json
-  def create
-    @vote = Vote.new(params[:vote])
-
-    respond_to do |format|
-      if @vote.save
-        format.html { redirect_to @vote, notice: 'Vote was successfully created.' }
-        format.json { render json: @vote, status: :created, location: @vote }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @vote.errors, status: :unprocessable_entity }
+    post_id = params[:post_id]
+    if session[:current_user_id]!=nil
+      post = Post.find_by_id(post_id)
+      if post.user_id!= session[:current_user_id] #not allowing to vote for own question
+        @vote = Vote.find_by_post_id_and_user_id(post_id, session[:current_user_id])
+        if @vote==nil
+          @vote = Vote.new
+          @vote.user_id = session[:current_user_id]
+          @vote.post_id = post.id
+          post.numVotes = post.numVotes+1
+          post.save
+          @vote.save
+        else
+          flash[:alert] = "You can vote only once"
+          redirect_to(:controller => "posts", :action => "index")
+          return
+        end
+        flash[:notice] =  "Voted Successfully"
+        redirect_to(:controller => "posts", :action => "index")
+        return
       end
     end
-  end
-
-  # PUT /votes/1
-  # PUT /votes/1.json
-  def update
-    @vote = Vote.find(params[:id])
-
-    respond_to do |format|
-      if @vote.update_attributes(params[:vote])
-        format.html { redirect_to @vote, notice: 'Vote was successfully updated.' }
-        format.json { head :ok }
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @vote.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # DELETE /votes/1
-  # DELETE /votes/1.json
-  def destroy
-    @vote = Vote.find(params[:id])
-    @vote.destroy
-
-    respond_to do |format|
-      format.html { redirect_to votes_url }
-      format.json { head :ok }
-    end
+    #respond_to do |format|
+    flash[:alert] = "You cannot vote your own question!!!"
+    redirect_to(:controller => "posts", :action => "index")
+    return
+    #format.json { render json: @vote }
+    #end
   end
 end

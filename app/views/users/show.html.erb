@@ -1,7 +1,7 @@
 <p id="notice"><%= notice %></p>
 
 
-<%= @sessionname %>
+
 <p>
   <b>Uname:</b>
   <%= @user.uname %>
@@ -18,15 +18,10 @@
 </p>
 
 <p>
-  <b>Password:</b>
-  <%= @user.password %>
-</p>
-
-<p>
   <b>Admin perm:</b>
   <%= @user.admin_perm %>
 </p>
 
 
 <%= link_to 'Edit', edit_user_path(@user) %> |
-<%= link_to 'Back', users_path %>
+<%= link_to 'Back', posts_path %>
